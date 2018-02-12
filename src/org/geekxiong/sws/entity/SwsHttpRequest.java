@@ -1,6 +1,8 @@
 package org.geekxiong.sws.entity;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,36 +15,56 @@ import org.geekxiong.sws.ientity.HttpRequest;
 
 /**
  * 
- * @author  作者 : Shiwei Xiong  
- * @version 创建时间 : 2018年2月11日 上午1:59:28 
+ * @author 作者 : Shiwei Xiong
+ * @version 创建时间 : 2018年2月11日 上午1:59:28
  * 
  */
-public class SwsHttpRequest implements HttpRequest{
+public class SwsHttpRequest implements HttpRequest {
 	private Socket requestSocket;
-	private Map<String,Object> attributes = new HashMap<String,Object>() ;
+	private Map<String, Object> attributes = new HashMap<String, Object>();
 	private String firstHead[];
+	private ByteArrayOutputStream socketStream;
 
-	public SwsHttpRequest(Socket socket) throws IOException{
+	
+	public SwsHttpRequest(Socket socket) throws IOException {
 		this.requestSocket = socket;
-		InputStream input = requestSocket.getInputStream();
+		
+		//备份现有inputstream
+		InputStream input0 =  requestSocket.getInputStream();  
+		socketStream = new ByteArrayOutputStream();
+		requestSocket.setSoTimeout(500);
+		byte[] buffer = new byte[1024];  
+		int len; 
+		try{
+			while ((len = input0.read(buffer))>-1 ) {  
+				socketStream.write(buffer, 0, len);  
+			}	
+		}catch(Exception e){
+			//e.printStackTrace();
+		}finally{
+			socketStream.flush(); 
+		}
+		
+		//初始化request实体
+		InputStream input = this.getInputStream();
 		InputStreamReader isr = new InputStreamReader(input);
 		BufferedReader br = new BufferedReader(isr);
+		
 		String s = null;
 		firstHead = br.readLine().split(" ");
 		while ((s = br.readLine()) != null) {
 			String attr[] = s.split(":\\s{1,}");
-			
-			if(attr.length<2){
+			if (attr.length < 2) {
 				break;
 			}
-			try{
+			try {
 				attributes.put(attr[0], attr[1]);
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	@Override
 	public String getRequestMethod() {
 		return firstHead[0];
@@ -91,7 +113,8 @@ public class SwsHttpRequest implements HttpRequest{
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		return requestSocket.getInputStream();
+		InputStream input = new ByteArrayInputStream(socketStream.toByteArray());
+		return input;
 	}
 
 	@Override
@@ -111,7 +134,7 @@ public class SwsHttpRequest implements HttpRequest{
 
 	@Override
 	public String getServerName() {
-		return (String)attributes.get("Host");
+		return (String) attributes.get("Host");
 	}
 
 	@Override

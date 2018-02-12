@@ -15,12 +15,11 @@ public interface HttpRequest {
 	// 返回这个请求的请求方法
 	public String getRequestMethod();
 	
-	// 返回这个请求的文件路径
+	// 返回这个请求的相对路径
 	public String getRequestURI();
 	
 	// 返回这个请求所用的协议，其形式是协议/主版本号.次版本号。例如对于一个HTTP1.0的请求，该方法返回HTTP/1.0。
 	public String getProtocol();
-	
 	
 	// 返回请求中指定属性的值，如果这个属性不存在，就返回一个空值。这个方法允许访问一些不提供给这个接口中其他方法的请求信息以及其他Servlet放置在这个请求对象内的数据。
 	public Object getAttribute(String name);
@@ -41,7 +40,6 @@ public interface HttpRequest {
 
 	// 返回一个输入流用来从请求体读取二进制数据。如果在此之前已经通过getReader方法获得了要读取的结果，这个方法会抛出一个IllegalStateException。
 	public InputStream getInputStream() throws IOException;
-
 
 	// 返回发送请求者的IP地址。
 	public String getRemoteAddr();

@@ -1,0 +1,12 @@
+<servers>
+	<listen>80</listen>
+	<server host="localhost" type="local">
+		<webroot>G:/testwebroot</webroot>
+	</server>
+	
+	<server host="proxyhost" type="proxy">
+		<proxy_host>v3.bootcss.com</proxy_host>
+		<proxy_port>80</proxy_port>
+	</server>
+
+</servers>
